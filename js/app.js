@@ -1,5 +1,7 @@
 // ===== Supabase Initialization =====
-const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_KEY);
+const SUPABASE_URL = 'https://tcvyfaxdvveniwsgnbxk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_O_13Ds6U69DTdSMikiFa4w_sA3oSBwS';
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let products = [];
 let categories = ['الكل'];
