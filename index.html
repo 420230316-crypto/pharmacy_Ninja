@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صيدلية الشفاء - حجز الأدوية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="container header-container">
+            <div class="logo">
+                <h1>صيدلية <span>الشفاء</span></h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="ابحث عن اسم الدواء...">
+                <button id="searchBtn">
+                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <section class="products-section">
+            <h2 class="section-title">الأدوية المتاحة <span class="product-count">(300 دواء)</span></h2>
+            <div id="filtersContainer" class="filters-container">
+                <!-- Category filter buttons injected by JS -->
+            </div>
+            <div id="productsGrid" class="products-grid">
+                <!-- Products injected by JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Floating Cart Button -->
+    <div class="floating-cart" id="floatingCartBtn">
+        <svg viewBox="0 0 24 24" width="28" height="28" stroke="currentColor" stroke-width="2" fill="none">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+        </svg>
+        <span class="cart-badge" id="cartBadgeCount">0</span>
+    </div>
+
+    <!-- Cart Modal -->
+    <div id="cartModal" class="modal">
+        <div class="modal-content cart-content">
+            <span class="close-modal cart-close">&times;</span>
+            <h3>سلة المشتريات 🛒</h3>
+            
+            <div id="cartItemsContainer" class="cart-items-container">
+                <!-- Items injected by JS -->
+                <p style="text-align:center; padding:20px; color:#64748b;">السلة فارغة حالياً</p>
+            </div>
+            
+            <div class="cart-summary">
+                <div class="summary-row">
+                    <span>الإجمالي:</span>
+                    <strong id="cartTotalPrice" style="color:var(--primary-color);">0 جنيه</strong>
+                </div>
+                <button type="button" class="btn btn-primary btn-block" id="proceedCheckoutBtn" disabled>متابعة الدفع</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reservation Modal (Checkout) -->
+    <div id="reservationModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal checkout-close">&times;</span>
+            <h3 id="modalTitle">تأكيد الطلب 🛍️</h3>
+            
+            <div class="selected-product-info">
+                <div>
+                    <h4>إجمالي المشتريات</h4>
+                    <p class="price" id="checkoutTotalPrice">0 جنيه</p>
+                </div>
+            </div>
+
+            <form id="reservationForm">
+                <div class="form-group">
+                    <label for="customerName">الاسم بالكامل</label>
+                    <input type="text" id="customerName" required placeholder="أدخل اسمك">
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">رقم التليفون</label>
+                    <input type="tel" id="customerPhone" required placeholder="مثال: 01000000000">
+                </div>
+                <div class="form-group">
+                    <label for="customerEmail">البريد الإلكتروني (اختياري لاستلام التأكيد)</label>
+                    <input type="email" id="customerEmail" placeholder="example@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label>طريقة الاستلام</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="orderType" value="pickup" checked onchange="toggleAddressField()"> استلام من الصيدلية
+                        </label>
+                        <label>
+                            <input type="radio" name="orderType" value="delivery" onchange="toggleAddressField()"> توصيل للمنزل (دليفري)
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="form-group" id="addressField" style="display: none;">
+                    <label for="deliveryAddress">عنوان التوصيل بالكامل</label>
+                    <textarea id="deliveryAddress" rows="2" placeholder="المدينة، الشارع، رقم العمارة، الشقة"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">تأكيد الطلب نهائياً</button>
+            </form>
+
+            <div id="successMessage" class="success-message hidden">
+                <svg viewBox="0 0 24 24" width="48" height="48" stroke="#10b981" stroke-width="2" fill="none">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <h4>تم إرسال الطلب!</h4>
+                <p>رقم الطلب الخاص بك هو: <strong id="reservationId"></strong></p>
+                <p>تم إرسال طلبك للإدارة للمراجعة والموافقة (قيد الانتظار).<br><small>ستتلقى بريداً إلكترونياً عند الموافقة.</small></p>
+                <button type="button" class="btn btn-outline" id="closeSuccessBtn">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>جميع الحقوق محفوظة &copy; صيدلية الشفاء 2026</p>
+        <button id="openAdminBtn" class="btn btn-outline" style="margin-top: 10px; font-size: 12px; padding: 5px 10px;">لوحة الإدارة (للاختبار)</button>
+    </footer>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content admin-content">
+            <span class="close-modal admin-close">&times;</span>
+            <h3>لوحة إدارة الطلبات (الطلبات المعلقة)</h3>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>رقم الطلب</th>
+                            <th>العميل</th>
+                            <th>النوع</th>
+                            <th>الدواء</th>
+                            <th>السعر</th>
+                            <th>التاريخ</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pendingOrdersTableBody">
+                        <tr><td colspan="7" style="text-align: center;">جاري تحميل الطلبات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <p id="adminStatusMsg" style="color: #10b981; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
