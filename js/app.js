@@ -423,19 +423,24 @@ window.approveOrder = async function(pendingId) {
 
 
 
-        // 3. Send Email via Brevo (Only to Customer)
+        // 3. Send Email via Brevo
         const brevoKey = 'xkeysib-da3379308edc39f955599a4fbad9cd1ea2513f8ec26f8abec46675ae565011d4-';
+        
+        let mailTo = [{ email: 'restaurant22nassar@gmail.com', name: 'إدارة الصيدلية' }];
+        
         if (resDataObj.customer_email) {
-            let mailTo = [{ email: resDataObj.customer_email, name: resDataObj.customer_name }];
-            const emailItemsHtml = itemsArray.map(item => `<tr><td style="padding:5px;border-bottom:1px solid #ccc;">${item.product_name}</td><td style="padding:5px;border-bottom:1px solid #ccc;">${item.quantity}</td><td style="padding:5px;border-bottom:1px solid #ccc;">${item.total_price} ج</td></tr>`).join('');
+            mailTo.push({ email: resDataObj.customer_email, name: resDataObj.customer_name });
+        }
 
-            await fetch('https://api.brevo.com/v3/smtp/email', {
-                method: 'POST',
-                headers: { 'accept': 'application/json', 'api-key': brevoKey, 'content-type': 'application/json' },
-                body: JSON.stringify({
-                    sender: { name: 'صيدلية الشفاء', email: 'no-reply@pharmacy-shefaa.com' },
-                    to: mailTo,
-                    subject: `تمت الموافقة على طلبيتك: ${resDataObj.reservation_number}`,
+        const emailItemsHtml = itemsArray.map(item => `<tr><td style="padding:5px;border-bottom:1px solid #ccc;">${item.product_name}</td><td style="padding:5px;border-bottom:1px solid #ccc;">${item.quantity}</td><td style="padding:5px;border-bottom:1px solid #ccc;">${item.total_price} ج</td></tr>`).join('');
+
+        await fetch('https://api.brevo.com/v3/smtp/email', {
+            method: 'POST',
+            headers: { 'accept': 'application/json', 'api-key': brevoKey, 'content-type': 'application/json' },
+            body: JSON.stringify({
+                sender: { name: 'صيدلية الشفاء', email: 'restaurant22nassar@gmail.com' },
+                to: mailTo,
+                subject: `تمت الموافقة على طلبيتك: ${resDataObj.reservation_number}`,
                     htmlContent: `
                         <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; line-height: 1.6;">
                             <h2 style="color: #10b981;">تم تأكيد الطلبية بنجاح! 🎉</h2>
@@ -457,13 +462,12 @@ window.approveOrder = async function(pendingId) {
                     `
                 })
             });
-        }
 
         // 4. Delete from pending_reservations
         await supabaseClient.from('pending_reservations').delete().eq('id', pendingId);
 
         statusMsg.style.color = '#10b981';
-        statusMsg.textContent = 'تم الاعتماد وتم إرسال الإيميل للعميل!';
+        statusMsg.textContent = 'تم الاعتماد وتم إرسال الإيميل!';
         loadPendingOrders();
 
     } catch (err) {
@@ -472,3 +476,4 @@ window.approveOrder = async function(pendingId) {
         statusMsg.textContent = 'حدث خطأ: ' + err.message;
     }
 }
+
