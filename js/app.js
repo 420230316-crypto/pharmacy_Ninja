@@ -428,7 +428,12 @@ window.approveOrder = async function(pendingId) {
             mailTo.push({ email: resDataObj.customer_email, name: resDataObj.customer_name });
         }
 
-        const emailItemsHtml = itemsArray.map(item => `<tr><td style="padding:5px;border-bottom:1px solid #ccc;">${item.product_name}</td><td style="padding:5px;border-bottom:1px solid #ccc;">${item.quantity}</td><td style="padding:5px;border-bottom:1px solid #ccc;">${item.total_price} ج</td></tr>`).join('');
+        const emailItemsHtml = itemsArray.map(item => `
+            <div style="margin-bottom: 10px; font-size: 16px;">
+                <strong style="color: #ffffff;">${item.product_name}:</strong> 
+                <span style="color: #cbd5e1;">${item.quantity} علبة (${item.total_price} ج.م)</span>
+            </div>
+        `).join('');
 
         const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
@@ -436,24 +441,50 @@ window.approveOrder = async function(pendingId) {
             body: JSON.stringify({
                 sender: { name: 'صيدلية الشفاء', email: 'restaurant22nassar@gmail.com' },
                 to: mailTo,
-                subject: `تمت الموافقة على طلبيتك: ${resDataObj.reservation_number}`,
+                subject: `فاتورة جديدة وحالة الطلب: ${resDataObj.reservation_number}`,
                 htmlContent: `
-                    <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; line-height: 1.6;">
-                        <h2 style="color: #10b981;">تم تأكيد الطلبية بنجاح! 🎉</h2>
-                        <p>أهلاً <strong>${resDataObj.customer_name}</strong>، تمت الموافقة على طلبك.</p>
-                        <p><strong>رقم الحجز:</strong> ${resDataObj.reservation_number}</p>
-                        <p><strong>طريقة الاستلام:</strong> ${resDataObj.order_type === 'delivery' ? `توصيل لمكانك (${resDataObj.delivery_address})` : 'استلام من الصيدلية'}</p>
-                        <hr>
-                        <h3>التفاصيل:</h3>
-                        <table style="width:100%; border-collapse: collapse; text-align: right;">
-                            <tr style="background:#f3f4f6;">
-                                <th style="padding:8px">الدواء</th>
-                                <th style="padding:8px">الكمية</th>
-                                <th style="padding:8px">السعر</th>
-                            </tr>
+                    <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; background-color: #1a1a2e; color: #e2e8f0; padding: 30px 20px; border-radius: 10px; max-width: 500px; margin: auto;">
+                        <h2 style="color: #ef4444; text-align: center; margin-bottom: 30px; font-size: 22px;">صيدلية الشفاء - فاتورة حجز جديدة</h2>
+                        
+                        <div style="margin-bottom: 15px; font-size: 16px;">
+                            <span style="color: #94a3b8;">اسم العميل:</span> 
+                            <strong style="color: #ffffff; margin-right: 10px;">${resDataObj.customer_name}</strong>
+                        </div>
+
+                        <div style="margin-bottom: 15px; font-size: 16px;">
+                            <span style="color: #94a3b8;">رقم التليفون:</span> 
+                            <strong style="color: #ffffff; margin-right: 10px;">${resDataObj.customer_phone}</strong>
+                        </div>
+
+                        <div style="margin-bottom: 15px; font-size: 16px;">
+                            <span style="color: #94a3b8;">رقم الطلب:</span> 
+                            <strong style="color: #ffffff; margin-right: 10px;">${resDataObj.reservation_number}</strong>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px; font-size: 16px;">
+                            <span style="color: #94a3b8;">طريقة الاستلام:</span> 
+                            <strong style="color: #ffffff; margin-right: 10px;">${resDataObj.order_type === 'delivery' ? `دليفري (${resDataObj.delivery_address})` : 'استلام من الصيدلية'}</strong>
+                        </div>
+
+                        <hr style="border: 0; border-top: 1px solid #334155; margin: 25px 0;">
+
+                        <div style="margin-bottom: 15px; font-size: 16px; color: #94a3b8;">تفاصيل الفاتورة والأدوية:</div>
+                        
+                        <div style="padding-right: 10px;">
                             ${emailItemsHtml}
-                        </table>
-                        <h3 style="color:#0284c7; margin-top:15px;">الإجمالي: ${resDataObj.total_amount} جنيه</h3>
+                        </div>
+                        
+                        <hr style="border: 0; border-top: 1px solid #334155; margin: 25px 0;">
+
+                        <h3 style="color: #ef4444; text-align: center; font-size: 20px; margin-bottom: 30px;">
+                            الإجمالي: ${resDataObj.total_amount} ج.م
+                        </h3>
+
+                        <div style="text-align: center;">
+                            <span style="background-color: #10b981; color: white; padding: 12px 30px; border-radius: 8px; font-weight: bold; font-size: 16px; display: inline-block;">
+                                تم تسجيل وتأكيد الطلب بنجاح
+                            </span>
+                        </div>
                     </div>
                 `
             })
