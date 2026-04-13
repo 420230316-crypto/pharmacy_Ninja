@@ -434,34 +434,39 @@ window.approveOrder = async function(pendingId) {
 
         const emailItemsHtml = itemsArray.map(item => `<tr><td style="padding:5px;border-bottom:1px solid #ccc;">${item.product_name}</td><td style="padding:5px;border-bottom:1px solid #ccc;">${item.quantity}</td><td style="padding:5px;border-bottom:1px solid #ccc;">${item.total_price} ج</td></tr>`).join('');
 
-        await fetch('https://api.brevo.com/v3/smtp/email', {
+        const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
             headers: { 'accept': 'application/json', 'api-key': brevoKey, 'content-type': 'application/json' },
             body: JSON.stringify({
                 sender: { name: 'صيدلية الشفاء', email: 'restaurant22nassar@gmail.com' },
                 to: mailTo,
                 subject: `تمت الموافقة على طلبيتك: ${resDataObj.reservation_number}`,
-                    htmlContent: `
-                        <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; line-height: 1.6;">
-                            <h2 style="color: #10b981;">تم تأكيد الطلبية بنجاح! 🎉</h2>
-                            <p>أهلاً <strong>${resDataObj.customer_name}</strong>، تمت الموافقة على طلبك.</p>
-                            <p><strong>رقم الحجز:</strong> ${resDataObj.reservation_number}</p>
-                            <p><strong>طريقة الاستلام:</strong> ${resDataObj.order_type === 'delivery' ? `توصيل لمكانك (${resDataObj.delivery_address})` : 'استلام من الصيدلية'}</p>
-                            <hr>
-                            <h3>التفاصيل:</h3>
-                            <table style="width:100%; border-collapse: collapse; text-align: right;">
-                                <tr style="background:#f3f4f6;">
-                                    <th style="padding:8px">الدواء</th>
-                                    <th style="padding:8px">الكمية</th>
-                                    <th style="padding:8px">السعر</th>
-                                </tr>
-                                ${emailItemsHtml}
-                            </table>
-                            <h3 style="color:#0284c7; margin-top:15px;">الإجمالي: ${resDataObj.total_amount} جنيه</h3>
-                        </div>
-                    `
-                })
-            });
+                htmlContent: `
+                    <div style="font-family: Arial, sans-serif; direction: rtl; text-align: right; line-height: 1.6;">
+                        <h2 style="color: #10b981;">تم تأكيد الطلبية بنجاح! 🎉</h2>
+                        <p>أهلاً <strong>${resDataObj.customer_name}</strong>، تمت الموافقة على طلبك.</p>
+                        <p><strong>رقم الحجز:</strong> ${resDataObj.reservation_number}</p>
+                        <p><strong>طريقة الاستلام:</strong> ${resDataObj.order_type === 'delivery' ? `توصيل لمكانك (${resDataObj.delivery_address})` : 'استلام من الصيدلية'}</p>
+                        <hr>
+                        <h3>التفاصيل:</h3>
+                        <table style="width:100%; border-collapse: collapse; text-align: right;">
+                            <tr style="background:#f3f4f6;">
+                                <th style="padding:8px">الدواء</th>
+                                <th style="padding:8px">الكمية</th>
+                                <th style="padding:8px">السعر</th>
+                            </tr>
+                            ${emailItemsHtml}
+                        </table>
+                        <h3 style="color:#0284c7; margin-top:15px;">الإجمالي: ${resDataObj.total_amount} جنيه</h3>
+                    </div>
+                `
+            })
+        });
+
+        if (!brevoResponse.ok) {
+            const errorText = await brevoResponse.text();
+            throw new Error(`خطأ من شركة Brevo: ${errorText}`);
+        }
 
         // 4. Delete from pending_reservations
         await supabaseClient.from('pending_reservations').delete().eq('id', pendingId);
