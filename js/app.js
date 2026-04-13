@@ -1,7 +1,5 @@
 // ===== Supabase Initialization =====
-const SUPABASE_URL = 'https://tcvyfaxdvveniwsgnbxk.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_O_13Ds6U69DTdSMikiFa4w_sA3oSBwS';
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(ENV.SUPABASE_URL, ENV.SUPABASE_KEY);
 
 let products = [];
 let categories = ['الكل'];
@@ -424,8 +422,6 @@ window.approveOrder = async function(pendingId) {
 
 
         // 3. Send Email via Brevo
-        const brevoKey = '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';
-        
         let mailTo = [{ email: 'restaurant22nassar@gmail.com', name: 'إدارة الصيدلية' }];
         
         if (resDataObj.customer_email) {
@@ -436,7 +432,7 @@ window.approveOrder = async function(pendingId) {
 
         const brevoResponse = await fetch('https://api.brevo.com/v3/smtp/email', {
             method: 'POST',
-            headers: { 'accept': 'application/json', 'api-key': brevoKey, 'content-type': 'application/json' },
+            headers: { 'accept': 'application/json', 'api-key': ENV.BREVO_KEY, 'content-type': 'application/json' },
             body: JSON.stringify({
                 sender: { name: 'صيدلية الشفاء', email: 'restaurant22nassar@gmail.com' },
                 to: mailTo,
