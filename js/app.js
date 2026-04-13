@@ -424,7 +424,7 @@ window.approveOrder = async function(pendingId) {
 
 
         // 3. Send Email via Brevo
-        const brevoKey = 'xkeysib-da3379308edc39f955599a4fbad9cd1ea2513f8ec26f8abec46675ae565011d4-';
+        const brevoKey = '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';
         
         let mailTo = [{ email: 'restaurant22nassar@gmail.com', name: 'إدارة الصيدلية' }];
         
@@ -476,4 +476,3 @@ window.approveOrder = async function(pendingId) {
         statusMsg.textContent = 'حدث خطأ: ' + err.message;
     }
 }
-
